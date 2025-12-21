@@ -18,6 +18,8 @@ dependencies {
     implementation("org.flywaydb:flyway-core:10.20.0")
     implementation("org.flywaydb:flyway-database-oracle:10.20.0")
 
+    implementation("com.google.inject:guice:7.0.0")
+
 }
 
 tasks.test {
