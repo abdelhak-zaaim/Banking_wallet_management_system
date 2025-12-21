@@ -11,12 +11,17 @@ import java.sql.SQLException;
  */
 public interface TransactionManager {
 
-    void stopTransaction();
+    void stopTransaction() throws SQLException;
 
     void commitTransaction() throws SQLException;
 
     void rollbackTransaction() throws SQLException;
 
-    TranIsoLevel getTransactionIsoLevel();
+    TranIsoLevel getTransactionIsoLevel() throws SQLException;
 
+    void startChildTransaction() throws SQLException;
+
+    public void commitChildTransaction() throws SQLException;
+
+    void rollbackChildTransaction() throws SQLException;
 }
