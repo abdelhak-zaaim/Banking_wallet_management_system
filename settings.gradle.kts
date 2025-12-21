@@ -1,0 +1,1 @@
+rootProject.name = "Banking_wallet_management_system"
