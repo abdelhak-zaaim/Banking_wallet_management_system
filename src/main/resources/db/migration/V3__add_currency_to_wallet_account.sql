@@ -1,0 +1,1 @@
+ALTER TABLE wallet_account ADD currency VARCHAR2(3) DEFAULT 'USD' NOT NULL;
