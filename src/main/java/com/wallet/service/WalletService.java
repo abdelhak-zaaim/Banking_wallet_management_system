@@ -1,5 +1,6 @@
 package com.wallet.service;
 
+import com.google.inject.Inject;
 import com.wallet.Exceptin.InsufficientBalanceException;
 import com.wallet.Exceptin.WalletException;
 
@@ -13,6 +14,7 @@ public class WalletService {
 
     private final DataSource dataSource;
 
+    @Inject
     public WalletService(DataSource dataSource) {
         this.dataSource = dataSource;
     }

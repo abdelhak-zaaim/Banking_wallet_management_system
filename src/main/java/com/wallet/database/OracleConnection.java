@@ -9,31 +9,45 @@ import java.sql.*;
 import java.util.logging.Logger;
 
 public class OracleConnection implements DataSource {
-    private static final String host = "jdbc:oracle:thin:@db.freesql.com:1521/23ai_34ui2";
-    private static final String username = "ABDELHAK_ZAAIM_SCHEMA_YZTTP";
 
+    private final String url;
+    private final String defaultUser;
+    private final String defaultPassword;
 
-    @Override
-    public Connection getConnection() throws SQLException {
-        Dotenv dotenv = Dotenv.load();
-        String password = dotenv.get("DATABASE_PASSWORD");
-
+    public OracleConnection() {
         try {
-            Connection conn = DriverManager.getConnection(host, username, password);
-            return conn;
-        } catch (SQLException e) {
-            throw new SQLRuntimeException("Failed to connect to Oracle database");
+            Dotenv dotenv = Dotenv.load();
+            String host = dotenv.get("ORACLE_HOST", "localhost");
+            String port = dotenv.get("ORACLE_PORT", "1521");
+            String service = dotenv.get("ORACLE_SERVICE", "XEPDB1");
+
+            this.url = dotenv.get("ORACLE_URL",
+                    "jdbc:oracle:thin:@" + host + ":" + port + "/" + service);
+            this.defaultUser = dotenv.get("ORACLE_USER");
+            this.defaultPassword = dotenv.get("ORACLE_PASSWORD");
+
+            Class.forName("oracle.jdbc.OracleDriver");
+        } catch (ClassNotFoundException e) {
+            throw new SQLRuntimeException("Oracle JDBC driver not found", e);
+        } catch (Exception e) {
+            throw new SQLRuntimeException("Failed to initialize OracleConnection", e);
         }
     }
 
     @Override
-    public Connection getConnection(String username, String password) throws SQLException {
-        try {
-            Connection conn = DriverManager.getConnection(host, username, password);
-            return conn;
-        } catch (SQLException e) {
-            throw new SQLRuntimeException("Failed to connect to Oracle database");
+    public Connection getConnection() throws SQLException {
+        if (defaultUser == null || defaultPassword == null) {
+            throw new SQLRuntimeException("Default DB credentials are not configured");
         }
+        return DriverManager.getConnection(url, defaultUser, defaultPassword);
+    }
+
+    @Override
+    public Connection getConnection(String username, String password) throws SQLException {
+        if (username == null || password == null) {
+            throw new SQLRuntimeException("Username and password must not be null");
+        }
+        return DriverManager.getConnection(url, username, password);
     }
 
     @Override
