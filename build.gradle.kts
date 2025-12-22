@@ -20,6 +20,9 @@ dependencies {
 
     implementation("com.google.inject:guice:7.0.0")
 
+    // Added for unit testing with Mockito
+    testImplementation("org.mockito:mockito-core:5.14.1")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.14.1")
 }
 
 tasks.test {
