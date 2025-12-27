@@ -79,4 +79,41 @@ public class AccountService {
         }
     }
 
+    public Account addAccount(Account account) throws SQLException {
+        String sql = "insert into account (fName, lName, email, password, wallet_id) values (?, ?, ?, ?, ?)";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setString(1, account.getfName());
+            ps.setString(2, account.getlName());
+            ps.setString(3, account.getEmail());
+            ps.setString(4, account.getPassword());
+            if (account.getWalletId() == 0) {
+                ps.setNull(5, Types.INTEGER);
+            } else {
+                ps.setInt(5, account.getWalletId());
+            }
+
+            int updated = ps.executeUpdate();
+            if (updated == 0) {
+                throw new SQLException("Insert failed, no rows affected");
+            }
+
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    int id = keys.getInt(1);
+                    return new Account(
+                            id,
+                            account.getfName(),
+                            account.getlName(),
+                            account.getEmail(),
+                            account.getPassword(),
+                            account.getWalletId()
+                    );
+                } else {
+                    throw new SQLException("Insert succeeded but no generated key returned");
+                }
+            }
+        }
+    }
 }
