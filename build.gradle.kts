@@ -22,9 +22,14 @@ dependencies {
 
     // Added for unit testing with Mockito
     testImplementation("org.mockito:mockito-core:5.14.1")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
+    testRuntimeOnly("net.bytebuddy:byte-buddy-agent:1.9.16")
     testImplementation("org.mockito:mockito-junit-jupiter:5.14.1")
 }
 
+
+
 tasks.test {
     useJUnitPlatform()
+    jvmArgs("-Dnet.bytebuddy.experimental=true")
 }
