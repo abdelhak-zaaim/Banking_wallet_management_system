@@ -7,21 +7,19 @@ import org.intellij.lang.annotations.Language;
 
 import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class AccountService {
-    private final DataSource dataSource;
+
     private final SQLUtils sqlUtil;
 
     @Inject
     public AccountService(DataSource dataSource) {
-        this.dataSource = dataSource;
         this.sqlUtil = new SQLUtils(dataSource);
     }
 
-    public List<Account> findAll() throws SQLException {
+    public List<Account> findAll() {
 
         List<Account> accounts = sqlUtil.select("select * from account", rs -> new Account(
                 rs.getInt("id"),
@@ -34,7 +32,7 @@ public class AccountService {
         return accounts;
     }
 
-    public List<Account> findByName(String name) throws SQLException {
+    public List<Account> findByName(String name) {
 
         List<Account> accounts = sqlUtil.select("select * from account where fName like ? or lName like ?", rs -> new Account(
                 rs.getInt("id"),
@@ -48,7 +46,7 @@ public class AccountService {
         return accounts;
     }
 
-    public Optional<Account> findById(int id) throws SQLException {
+    public Optional<Account> findById(int id) {
 
         @Language("SQL")
         String sql = "select * from account where id = ?";
@@ -64,8 +62,9 @@ public class AccountService {
 
         return accounts;
     }
+
     // make sure a hash the password before call this method
-    public Account addAccount(Account account) throws SQLException {
+    public Account addAccount(Account account) {
 
         @Language("SQL")
         String sql = "insert into account (fName, lName, email, password, wallet_id) values (?, ?, ?, ?, ?)";

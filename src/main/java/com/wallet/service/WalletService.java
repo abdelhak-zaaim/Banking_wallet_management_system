@@ -2,21 +2,22 @@ package com.wallet.service;
 
 import com.google.inject.Inject;
 import com.wallet.Exceptin.InsufficientBalanceException;
+import com.wallet.Exceptin.SQLRuntimeException;
 import com.wallet.Exceptin.WalletException;
+import com.wallet.database.util.SQLUtils;
+import org.intellij.lang.annotations.Language;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
 import javax.sql.DataSource;
 
 public class WalletService {
 
-    private final DataSource dataSource;
+    private final SQLUtils sqlUtil;
 
     @Inject
     public WalletService(DataSource dataSource) {
-        this.dataSource = dataSource;
+        this.sqlUtil = new SQLUtils(dataSource);
     }
 
     public String transfer(long fromAccountId, long toAccountId, String currency, double amount) {
@@ -26,30 +27,19 @@ public class WalletService {
 
     public String transfer(String requestId, long fromAccountId, long toAccountId,
                            String currency, double amount) {
-        try (Connection conn = dataSource.getConnection()) {
-            conn.setAutoCommit(false);
-            conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 
-            try (CallableStatement stmt = conn.prepareCall(
-                    "{call wallet_pkg.transfer(?, ?, ?, ?, ?)}")) {
-
-                stmt.setString(1, requestId);
-                stmt.setLong(2, fromAccountId);
-                stmt.setLong(3, toAccountId);
-                stmt.setString(4, currency);
-                stmt.setDouble(5, amount);
-
-                stmt.execute();
-                conn.commit();
-                return requestId;
-
-            } catch (SQLException e) {
-                conn.rollback();
-                throw mapSqlException(e);
-            }
-        } catch (SQLException e) {
-            throw new WalletException("Database connection error", e);
+        @Language("SQL")
+        String sql = "{call wallet_pkg.transfer(?, ?, ?, ?, ?)}";
+        try {
+            sqlUtil.callProcedure(sql, requestId, fromAccountId, toAccountId, currency, amount);
+        } catch (SQLRuntimeException e) {
+            if (e.getCause() != null && e.getCause() instanceof SQLException)
+                throw mapSqlException((SQLException) e.getCause());
+            else
+                throw new WalletException("Unknown Error", e);
         }
+
+        return requestId;
     }
 
     private WalletException mapSqlException(SQLException e) {
