@@ -1,7 +1,9 @@
 package com.wallet.model;
 
+import javax.annotation.concurrent.Immutable;
 import java.util.Objects;
 
+@Immutable
 public class Account {
     private int id;
     private String fName;
@@ -41,6 +43,30 @@ public class Account {
 
     public int getWalletId() {
         return walletId;
+    }
+
+    public Account withId(int id) {
+        return new Account(id, fName, lName, email, password, walletId);
+    }
+
+    public Account withfName(String fName) {
+        return new Account(id, fName, lName, email, password, walletId);
+    }
+
+    public Account withlName(String lName) {
+        return new Account(id, fName, lName, email, password, walletId);
+    }
+
+    public Account withEmail(String email) {
+        return new Account(id, fName, lName, email, password, walletId);
+    }
+
+    public Account withPassword(String password) {
+        return new Account(id, fName, lName, email, password, walletId);
+    }
+
+    public Account withWalletId(int walletId) {
+        return new Account(id, fName, lName, email, password, walletId);
     }
 
     @Override

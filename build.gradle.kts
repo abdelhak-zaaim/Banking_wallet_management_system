@@ -25,6 +25,8 @@ dependencies {
     testImplementation("org.mockito:mockito-inline:5.2.0")
     testRuntimeOnly("net.bytebuddy:byte-buddy-agent:1.9.16")
     testImplementation("org.mockito:mockito-junit-jupiter:5.14.1")
+
+    compileOnly("org.jetbrains:annotations:24.1.0")
 }
 
 
