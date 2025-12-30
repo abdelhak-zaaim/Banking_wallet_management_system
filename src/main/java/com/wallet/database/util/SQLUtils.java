@@ -92,7 +92,8 @@ public class SQLUtils {
      * @return Count of matching rows
      */
     public long count(String tableName, String where, Object... params) {
-        @Language("SQL")  String sql = "SELECT COUNT(*) FROM " + tableName;
+        @Language("SQL")
+        String sql = "SELECT COUNT(*) FROM " + tableName;
         if (where != null && !where.isBlank()) {
             sql += " WHERE " + where;
         }
@@ -110,7 +111,8 @@ public class SQLUtils {
      * @return true if at least one row exists
      */
     public boolean exists(String tableName, String where, Object... params) {
-        @Language("SQL")  String sql = "SELECT 1 FROM " + tableName + " WHERE " + where + " FETCH FIRST 1 ROWS ONLY";
+        @Language("SQL")
+        String sql = "SELECT 1 FROM " + tableName + " WHERE " + where + " FETCH FIRST 1 ROWS ONLY";
         return selectScalar(sql, Object.class, params).isPresent();
     }
 
@@ -204,7 +206,8 @@ public class SQLUtils {
      * @return Number of rows deleted
      */
     public int deleteWhere(String tableName, String where, Object... params) {
-        @Language("SQL")  String sql = "DELETE FROM " + tableName + " WHERE " + where;
+        @Language("SQL")
+        String sql = "DELETE FROM " + tableName + " WHERE " + where;
         return executeUpdate(sql, params);
     }
 
@@ -534,6 +537,7 @@ public class SQLUtils {
             return this;
         }
 
+        @Language("SQL")
         public String buildSql() {
             StringBuilder sql = new StringBuilder("SELECT ");
             sql.append(columns.isEmpty() ? "*" : String.join(", ", columns));
@@ -578,6 +582,7 @@ public class SQLUtils {
         }
 
         public long count() {
+            @Language("SQL")
             String countSql = "SELECT COUNT(*) FROM " + table;
             if (!conditions.isEmpty()) {
                 countSql += " WHERE " + String.join(" AND ", conditions);
