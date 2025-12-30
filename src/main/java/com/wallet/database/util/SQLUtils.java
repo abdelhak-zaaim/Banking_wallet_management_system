@@ -2,6 +2,7 @@ package com.wallet.database.util;
 
 import com.google.inject.Inject;
 import com.wallet.Exceptin.SQLRuntimeException;
+import org.intellij.lang.annotations.Language;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -30,7 +31,7 @@ public class SQLUtils {
      * @param <T>    Type of result object
      * @return List of mapped objects
      */
-    public <T> List<T> select(String sql, RowMapper<T> mapper, Object... params) {
+    public <T> List<T> select(@Language("SQL")  String sql, RowMapper<T> mapper, Object... params) {
         List<T> results = new ArrayList<>();
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = prepareStatement(conn, sql, params);
@@ -54,7 +55,7 @@ public class SQLUtils {
      * @param <T>    Type of result object
      * @return Optional containing the result or empty if no rows
      */
-    public <T> Optional<T> selectOne(String sql, RowMapper<T> mapper, Object... params) {
+    public <T> Optional<T> selectOne(@Language("SQL")  String sql, RowMapper<T> mapper, Object... params) {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = prepareStatement(conn, sql, params);
              ResultSet rs = stmt.executeQuery()) {
@@ -78,7 +79,7 @@ public class SQLUtils {
      * @return Optional containing the value or empty if no rows
      */
     @SuppressWarnings("unchecked")
-    public <T> Optional<T> selectScalar(String sql, Class<T> type, Object... params) {
+    public <T> Optional<T> selectScalar(@Language("SQL")  String sql, Class<T> type, Object... params) {
         return selectOne(sql, rs -> (T) rs.getObject(1), params);
     }
 
@@ -91,7 +92,7 @@ public class SQLUtils {
      * @return Count of matching rows
      */
     public long count(String tableName, String where, Object... params) {
-        String sql = "SELECT COUNT(*) FROM " + tableName;
+        @Language("SQL")  String sql = "SELECT COUNT(*) FROM " + tableName;
         if (where != null && !where.isBlank()) {
             sql += " WHERE " + where;
         }
@@ -109,7 +110,7 @@ public class SQLUtils {
      * @return true if at least one row exists
      */
     public boolean exists(String tableName, String where, Object... params) {
-        String sql = "SELECT 1 FROM " + tableName + " WHERE " + where + " FETCH FIRST 1 ROWS ONLY";
+        @Language("SQL")  String sql = "SELECT 1 FROM " + tableName + " WHERE " + where + " FETCH FIRST 1 ROWS ONLY";
         return selectScalar(sql, Object.class, params).isPresent();
     }
 
@@ -120,7 +121,7 @@ public class SQLUtils {
      * @param params Insert parameters
      * @return Number of rows inserted
      */
-    public int insert(String sql, Object... params) {
+    public int insert(@Language("SQL")  String sql, Object... params) {
         return executeUpdate(sql, params);
     }
 
@@ -132,7 +133,7 @@ public class SQLUtils {
      * @param params     Insert parameters
      * @return Generated key value
      */
-    public Optional<Long> insertAndGetKey(String sql, String keyColumn, Object... params) {
+    public Optional<Long> insertAndGetKey(@Language("SQL")  String sql, String keyColumn, Object... params) {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, new String[]{keyColumn})) {
 
@@ -157,7 +158,7 @@ public class SQLUtils {
      * @param batchData  List of parameter arrays for each row
      * @return Array of update counts
      */
-    public int[] batchInsert(String sql, List<Object[]> batchData) {
+    public int[] batchInsert(@Language("SQL")  String sql, List<Object[]> batchData) {
         return executeBatch(sql, batchData);
     }
 
@@ -168,7 +169,7 @@ public class SQLUtils {
      * @param params Update parameters
      * @return Number of rows updated
      */
-    public int update(String sql, Object... params) {
+    public int update(@Language("SQL")  String sql, Object... params) {
         return executeUpdate(sql, params);
     }
 
@@ -179,7 +180,7 @@ public class SQLUtils {
      * @param batchData  List of parameter arrays for each update
      * @return Array of update counts
      */
-    public int[] batchUpdate(String sql, List<Object[]> batchData) {
+    public int[] batchUpdate(@Language("SQL")  String sql, List<Object[]> batchData) {
         return executeBatch(sql, batchData);
     }
 
@@ -190,7 +191,7 @@ public class SQLUtils {
      * @param params Delete parameters
      * @return Number of rows deleted
      */
-    public int delete(String sql, Object... params) {
+    public int delete(@Language("SQL")  String sql, Object... params) {
         return executeUpdate(sql, params);
     }
 
@@ -203,7 +204,7 @@ public class SQLUtils {
      * @return Number of rows deleted
      */
     public int deleteWhere(String tableName, String where, Object... params) {
-        String sql = "DELETE FROM " + tableName + " WHERE " + where;
+        @Language("SQL")  String sql = "DELETE FROM " + tableName + " WHERE " + where;
         return executeUpdate(sql, params);
     }
 
@@ -307,7 +308,7 @@ public class SQLUtils {
         return new SelectBuilder(this);
     }
 
-    private int executeUpdate(String sql, Object... params) {
+    private int executeUpdate(@Language("SQL")  String sql, Object... params) {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = prepareStatement(conn, sql, params)) {
             return stmt.executeUpdate();
@@ -316,7 +317,7 @@ public class SQLUtils {
         }
     }
 
-    private int[] executeBatch(String sql, List<Object[]> batchData) {
+    private int[] executeBatch(@Language("SQL")  String sql, List<Object[]> batchData) {
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -331,7 +332,7 @@ public class SQLUtils {
         }
     }
 
-    private PreparedStatement prepareStatement(Connection conn, String sql, Object... params)
+    private PreparedStatement prepareStatement(Connection conn, @Language("SQL")  String sql, Object... params)
             throws SQLException {
         PreparedStatement stmt = conn.prepareStatement(sql);
         setParameters(stmt, params);
@@ -412,7 +413,7 @@ public class SQLUtils {
             this.connection = connection;
         }
 
-        public <T> List<T> select(String sql, RowMapper<T> mapper, Object... params) throws SQLException {
+        public <T> List<T> select(@Language("SQL")  String sql, RowMapper<T> mapper, Object... params) throws SQLException {
             List<T> results = new ArrayList<>();
             try (PreparedStatement stmt = prepareStatement(connection, sql, params);
                  ResultSet rs = stmt.executeQuery()) {
@@ -423,7 +424,7 @@ public class SQLUtils {
             return results;
         }
 
-        public <T> Optional<T> selectOne(String sql, RowMapper<T> mapper, Object... params) throws SQLException {
+        public <T> Optional<T> selectOne(@Language("SQL")  String sql, RowMapper<T> mapper, Object... params) throws SQLException {
             try (PreparedStatement stmt = prepareStatement(connection, sql, params);
                  ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -433,19 +434,19 @@ public class SQLUtils {
             return Optional.empty();
         }
 
-        public int insert(String sql, Object... params) throws SQLException {
+        public int insert(@Language("SQL")  String sql, Object... params) throws SQLException {
             return executeUpdateInTx(sql, params);
         }
 
-        public int update(String sql, Object... params) throws SQLException {
+        public int update(@Language("SQL")  String sql, Object... params) throws SQLException {
             return executeUpdateInTx(sql, params);
         }
 
-        public int delete(String sql, Object... params) throws SQLException {
+        public int delete(@Language("SQL")  String sql, Object... params) throws SQLException {
             return executeUpdateInTx(sql, params);
         }
 
-        private int executeUpdateInTx(String sql, Object... params) throws SQLException {
+        private int executeUpdateInTx(@Language("SQL")  String sql, Object... params) throws SQLException {
             try (PreparedStatement stmt = prepareStatement(connection, sql, params)) {
                 return stmt.executeUpdate();
             }
