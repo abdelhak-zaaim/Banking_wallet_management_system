@@ -69,8 +69,8 @@ public class AccountService {
         @Language("SQL")
         String sql = "insert into account (fName, lName, email, password, wallet_id) values (?, ?, ?, ?, ?)";
 
-        int id = sqlUtil.insert(sql, account.getfName(), account.getlName(), account.getEmail(), account.getPassword(), account.getWalletId());
+        Optional<Long> id = sqlUtil.insertAndGetKey(sql, account.getfName(), account.getlName(), account.getEmail(), account.getPassword(), account.getWalletId());
 
-        return account.withId(id);
+        return account.withId(id.get().intValue());
     }
 }
