@@ -1,27 +1,26 @@
 package com.wallet.service;
 
 import com.google.inject.Inject;
-import com.wallet.database.util.SQLUtils;
+import com.wallet.database.util.SqlTemplate;
 import com.wallet.model.Account;
 import org.intellij.lang.annotations.Language;
 
 import javax.sql.DataSource;
-import java.sql.*;
 import java.util.List;
 import java.util.Optional;
 
 public class AccountService {
 
-    private final SQLUtils sqlUtil;
+    private final SqlTemplate sqlTemplate;
 
     @Inject
     public AccountService(DataSource dataSource) {
-        this.sqlUtil = new SQLUtils(dataSource);
+        this.sqlTemplate = new SqlTemplate(dataSource);
     }
 
     public List<Account> findAll() {
 
-        List<Account> accounts = sqlUtil.select("select * from account", rs -> new Account(
+        List<Account> accounts = sqlTemplate.select("select * from account", rs -> new Account(
                 rs.getInt("id"),
                 rs.getString("fName"),
                 rs.getString("lName"),
@@ -34,7 +33,7 @@ public class AccountService {
 
     public List<Account> findByName(String name) {
 
-        List<Account> accounts = sqlUtil.select("select * from account where fName like ? or lName like ?", rs -> new Account(
+        List<Account> accounts = sqlTemplate.select("select * from account where fName like ? or lName like ?", rs -> new Account(
                 rs.getInt("id"),
                 rs.getString("fName"),
                 rs.getString("lName"),
@@ -51,7 +50,7 @@ public class AccountService {
         @Language("SQL")
         String sql = "select * from account where id = ?";
 
-        Optional<Account> accounts = sqlUtil.selectOne(sql, rs -> new Account(
+        Optional<Account> accounts = sqlTemplate.selectOne(sql, rs -> new Account(
                         rs.getInt("id"),
                         rs.getString("fName"),
                         rs.getString("lName"),
@@ -69,7 +68,7 @@ public class AccountService {
         @Language("SQL")
         String sql = "insert into account (fName, lName, email, password, wallet_id) values (?, ?, ?, ?, ?)";
 
-        Optional<Long> id = sqlUtil.insertAndGetKey(sql, account.getfName(), account.getlName(), account.getEmail(), account.getPassword(), account.getWalletId());
+        Optional<Long> id = sqlTemplate.insertAndGetKey(sql, account.getfName(), account.getlName(), account.getEmail(), account.getPassword(), account.getWalletId());
 
         return account.withId(id.get().intValue());
     }

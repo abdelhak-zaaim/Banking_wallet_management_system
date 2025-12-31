@@ -13,12 +13,12 @@ import java.util.*;
  * Provides fluent API for SELECT, INSERT, UPDATE, DELETE operations
  * with proper resource management and exception handling.
  */
-public class SQLUtils {
+public class SqlTemplate {
 
     private final DataSource dataSource;
 
     @Inject
-    public SQLUtils(DataSource dataSource) {
+    public SqlTemplate(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -461,7 +461,7 @@ public class SQLUtils {
     }
 
     public static class SelectBuilder {
-        private final SQLUtils sqlUtils;
+        private final SqlTemplate sqlTemplate;
         private final List<String> columns = new ArrayList<>();
         private String table;
         private final List<String> joins = new ArrayList<>();
@@ -473,8 +473,8 @@ public class SQLUtils {
         private Integer limit;
         private Integer offset;
 
-        SelectBuilder(SQLUtils sqlUtils) {
-            this.sqlUtils = sqlUtils;
+        SelectBuilder(SqlTemplate sqlTemplate) {
+            this.sqlTemplate = sqlTemplate;
         }
 
         public SelectBuilder columns(String... cols) {
@@ -574,11 +574,11 @@ public class SQLUtils {
         }
 
         public <T> List<T> execute(RowMapper<T> mapper) {
-            return sqlUtils.select(buildSql(), mapper, parameters.toArray());
+            return sqlTemplate.select(buildSql(), mapper, parameters.toArray());
         }
 
         public <T> Optional<T> executeOne(RowMapper<T> mapper) {
-            return sqlUtils.selectOne(buildSql(), mapper, parameters.toArray());
+            return sqlTemplate.selectOne(buildSql(), mapper, parameters.toArray());
         }
 
         public long count() {
@@ -587,7 +587,7 @@ public class SQLUtils {
             if (!conditions.isEmpty()) {
                 countSql += " WHERE " + String.join(" AND ", conditions);
             }
-            return sqlUtils.selectScalar(countSql, Number.class, parameters.toArray())
+            return sqlTemplate.selectScalar(countSql, Number.class, parameters.toArray())
                     .map(Number::longValue)
                     .orElse(0L);
         }

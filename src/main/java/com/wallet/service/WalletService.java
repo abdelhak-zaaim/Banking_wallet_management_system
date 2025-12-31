@@ -4,7 +4,7 @@ import com.google.inject.Inject;
 import com.wallet.Exceptin.InsufficientBalanceException;
 import com.wallet.Exceptin.SQLRuntimeException;
 import com.wallet.Exceptin.WalletException;
-import com.wallet.database.util.SQLUtils;
+import com.wallet.database.util.SqlTemplate;
 import org.intellij.lang.annotations.Language;
 
 import java.sql.SQLException;
@@ -13,11 +13,11 @@ import javax.sql.DataSource;
 
 public class WalletService {
 
-    private final SQLUtils sqlUtil;
+    private final SqlTemplate sqlTemplate;
 
     @Inject
     public WalletService(DataSource dataSource) {
-        this.sqlUtil = new SQLUtils(dataSource);
+        this.sqlTemplate = new SqlTemplate(dataSource);
     }
 
     public String transfer(long fromAccountId, long toAccountId, String currency, double amount) {
@@ -31,7 +31,7 @@ public class WalletService {
         @Language("SQL")
         String sql = "{call wallet_pkg.transfer(?, ?, ?, ?, ?)}";
         try {
-            sqlUtil.callProcedure(sql, requestId, fromAccountId, toAccountId, currency, amount);
+            sqlTemplate.callProcedure(sql, requestId, fromAccountId, toAccountId, currency, amount);
         } catch (SQLRuntimeException e) {
             if (e.getCause() != null && e.getCause() instanceof SQLException)
                 throw mapSqlException((SQLException) e.getCause());
