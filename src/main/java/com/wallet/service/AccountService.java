@@ -1,13 +1,10 @@
 package com.wallet.service;
 
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.wallet.database.util.SqlTemplate;
 import com.wallet.model.Account;
 import org.intellij.lang.annotations.Language;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
 
