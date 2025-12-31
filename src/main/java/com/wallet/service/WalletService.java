@@ -1,12 +1,14 @@
 package com.wallet.service;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.wallet.Exceptin.InsufficientBalanceException;
 import com.wallet.Exceptin.SQLRuntimeException;
 import com.wallet.Exceptin.WalletException;
 import com.wallet.database.util.SqlTemplate;
 import org.intellij.lang.annotations.Language;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.UUID;
 import javax.sql.DataSource;
@@ -16,8 +18,8 @@ public class WalletService {
     private final SqlTemplate sqlTemplate;
 
     @Inject
-    public WalletService(DataSource dataSource) {
-        this.sqlTemplate = new SqlTemplate(dataSource);
+    public WalletService(SqlTemplate sqlTemplate) {
+        this.sqlTemplate = sqlTemplate;
     }
 
     public String transfer(long fromAccountId, long toAccountId, String currency, double amount) {

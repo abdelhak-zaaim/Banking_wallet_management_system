@@ -1,6 +1,7 @@
 package com.wallet.database.util;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.wallet.Exceptin.SQLRuntimeException;
 import org.intellij.lang.annotations.Language;
 
@@ -15,11 +16,11 @@ import java.util.*;
  */
 public class SqlTemplate {
 
-    private final DataSource dataSource;
+    private final Provider<Connection> connectionProvider;
 
     @Inject
-    public SqlTemplate(DataSource dataSource) {
-        this.dataSource = dataSource;
+    public SqlTemplate(Provider<Connection> connectionProvider) {
+        this.connectionProvider = connectionProvider;
     }
 
     /**
@@ -33,7 +34,7 @@ public class SqlTemplate {
      */
     public <T> List<T> select(@Language("SQL")  String sql, RowMapper<T> mapper, Object... params) {
         List<T> results = new ArrayList<>();
-        try (Connection conn = dataSource.getConnection();
+        try (Connection conn = connectionProvider.get();
              PreparedStatement stmt = prepareStatement(conn, sql, params);
              ResultSet rs = stmt.executeQuery()) {
 
@@ -56,7 +57,7 @@ public class SqlTemplate {
      * @return Optional containing the result or empty if no rows
      */
     public <T> Optional<T> selectOne(@Language("SQL")  String sql, RowMapper<T> mapper, Object... params) {
-        try (Connection conn = dataSource.getConnection();
+        try (Connection conn = connectionProvider.get();
              PreparedStatement stmt = prepareStatement(conn, sql, params);
              ResultSet rs = stmt.executeQuery()) {
 
@@ -136,7 +137,7 @@ public class SqlTemplate {
      * @return Generated key value
      */
     public Optional<Long> insertAndGetKey(@Language("SQL")  String sql, String keyColumn, Object... params) {
-        try (Connection conn = dataSource.getConnection();
+        try (Connection conn = connectionProvider.get();
              PreparedStatement stmt = conn.prepareStatement(sql, new String[]{keyColumn})) {
 
             setParameters(stmt, params);
@@ -221,7 +222,7 @@ public class SqlTemplate {
     public <T> T executeInTransaction(TransactionCallback<T> operations) {
         Connection conn = null;
         try {
-            conn = dataSource.getConnection();
+            conn = connectionProvider.get();
             conn.setAutoCommit(false);
             conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 
@@ -256,7 +257,7 @@ public class SqlTemplate {
      * @param params        Procedure parameters
      */
     public void callProcedure(String procedureCall, Object... params) {
-        try (Connection conn = dataSource.getConnection();
+        try (Connection conn = connectionProvider.get();
              CallableStatement stmt = conn.prepareCall(procedureCall)) {
 
             setParameters(stmt, params);
@@ -278,7 +279,7 @@ public class SqlTemplate {
     public Map<Integer, Object> callProcedureWithOut(String procedureCall,
                                                       Map<Integer, Integer> outParams,
                                                       Object... inParams) {
-        try (Connection conn = dataSource.getConnection();
+        try (Connection conn = connectionProvider.get();
              CallableStatement stmt = conn.prepareCall(procedureCall)) {
 
             // Register OUT parameters
@@ -312,7 +313,7 @@ public class SqlTemplate {
     }
 
     private int executeUpdate(@Language("SQL")  String sql, Object... params) {
-        try (Connection conn = dataSource.getConnection();
+        try (Connection conn = connectionProvider.get();
              PreparedStatement stmt = prepareStatement(conn, sql, params)) {
             return stmt.executeUpdate();
         } catch (SQLException e) {
@@ -321,7 +322,7 @@ public class SqlTemplate {
     }
 
     private int[] executeBatch(@Language("SQL")  String sql, List<Object[]> batchData) {
-        try (Connection conn = dataSource.getConnection();
+        try (Connection conn = connectionProvider.get();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             for (Object[] params : batchData) {

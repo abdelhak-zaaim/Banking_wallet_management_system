@@ -5,16 +5,17 @@ import io.github.cdimascio.dotenv.Dotenv;
 import oracle.jdbc.pool.OracleDataSource;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 public class DataSourceModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(DataSource.class).toInstance(createOracleDataSource());
+        bind(Connection.class).toInstance(createOracleDataSource());
     }
 
-    private DataSource createOracleDataSource() {
+    private Connection createOracleDataSource() {
         try {
             Dotenv dotenv = Dotenv.load();
 
@@ -41,7 +42,7 @@ public class DataSourceModule extends AbstractModule {
 
             ods.setImplicitCachingEnabled(true);
 
-            return ods;
+            return ods.getConnection();
         } catch (SQLException e) {
             throw new RuntimeException("Failed to create OracleDataSource", e);
         }
