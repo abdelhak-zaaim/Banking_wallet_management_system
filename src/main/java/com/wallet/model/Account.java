@@ -5,12 +5,12 @@ import java.util.Objects;
 
 @Immutable
 public class Account {
-    private int id;
-    private String fName;
-    private String lName;
-    private String email;
-    private String password;
-    private int walletId;
+    private final int id;
+    private final String fName;
+    private final String lName;
+    private final String email;
+    private final String password;
+    private final int walletId;
 
     public Account(int id, String fName, String lName, String email, String password, int walletId) {
         this.id = id;
